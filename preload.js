@@ -1,5 +1,6 @@
 // var ipc = require('ipc')
 var clipboard = require('clipboard')
+var NativeImage = require('native-image')
 
 // var reddots = []
 
@@ -8,6 +9,7 @@ var clipboard = require('clipboard')
 window._console = window.console
 
 
+var free = true
 // setTimeout(function(){
 	init()
 // }, 3000)
@@ -35,16 +37,19 @@ function onLogin(){
 }
 
 function onReddot($chat_item){
+	if (!free) return
+	free = false
 	$chat_item[0].click()
 
 	setTimeout(function(){
-	// var text = 'hello\ngay'
-	var text = ''
+	var reply = {}
 
 	// 自动回复 相同的内容
 	var $msg = $([
 		// '.message_system',
 		'.msg-img',
+		'.voice',
+		'a.app',
 		'.js_message_plain'
 	].join(', ')).last()
 	/*if ($msg.is('.message_system')) {
@@ -59,11 +64,17 @@ function onReddot($chat_item){
 	} else*/
 	if ($msg.is('.msg-img')) {
 		if ($msg.is('.custom_emoji')) { // 用户表情
-			text = '发毛表情'
+			reply.text = '发毛表情'
 		} else {
-			text = '发毛图片'
+			// reply.text = '发毛图片'
+			reply.image = './fuck.jpeg'
 		}
+	} else if ($msg.is('.voice')) {
+		reply.text = '发毛语音'
+	} else if ($msg.is('a.app')) {
+		reply.text = '转发jj'
 	} else {
+		var text = ''
 		$msg.contents().each(function(i, node){
 			if (node.nodeType === Node.TEXT_NODE) {
 				text += node.nodeValue
@@ -78,27 +89,57 @@ function onReddot($chat_item){
 		if (text === '[收到了一个表情，请在手机上查看]') { // 微信表情包
 			text = '发毛表情'
 		}
+		reply.text = text
 	}
-	_console.log('回复', text)
+	_console.log('回复', reply)
 
 	// 借用clipboard 实现输入文字 更新ng-model=EditAreaCtn
 	// 直接设#editArea的innerText无效 暂时找不到其他方法
-	var oldHtml = clipboard.readHtml() 
-	var oldText = clipboard.readText()
-	clipboard.writeText(text)
-	$('#editArea')[0].focus()
-	document.execCommand('paste')
-	clipboard.writeHtml(oldHtml)
-	clipboard.writeText(oldText)
+	paste(reply)
 
 
 	// $('.web_wechat_face')[0].click()
 	// $('[title=阴险]')[0].click()
 
+	if (reply.image) {
+		setTimeout(function(){
+			var tryClickBtn = setInterval(function(){
+				var $btn = $('.dialog_ft .btn_primary')
+				if ($btn.length) {
+					$('.dialog_ft .btn_primary')[0].click()
+				} else {
+					clearInterval(tryClickBtn)
+					$('img[src*=filehelper]').closest('.chat_item')[0].click()
+					free = true
+				}
+			}, 500)
+		}, 100)
+	} else {
+		$('.btn_send')[0].click()
+		// $('.chat_item').last()[0].click()
+		$('img[src*=filehelper]').closest('.chat_item')[0].click()
+		free = true
+	}
 
-
-	$('.btn_send')[0].click()
-	// $('.chat_item').last()[0].click()
-	$('img[src*=filehelper]').closest('.chat_item')[0].click()
+	
+	
 	}, 100)
 }
+
+
+function paste(opt){
+	var oldImage = clipboard.readImage()
+	var oldHtml = clipboard.readHtml()
+	var oldText = clipboard.readText()
+	if (opt.image) {
+		clipboard.writeImage(NativeImage.createFromPath(opt.image))
+	}
+	if (opt.html) clipboard.writeHtml(opt.html)
+	if (opt.text) clipboard.writeText(opt.text)
+	$('#editArea')[0].focus()
+	document.execCommand('paste')
+	clipboard.writeImage(oldImage)
+	clipboard.writeHtml(oldHtml)
+	clipboard.writeText(oldText)
+}
+
