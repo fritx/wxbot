@@ -8,7 +8,7 @@ app.on('ready', function(){
 
 	var win = new BrowserWindow({
 		width: 900,
-		height: 600,
+		height: 610,
 		'web-preferences': {
 			'node-integration': false,
 			preload: __dirname + '/preload.js'

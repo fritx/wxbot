@@ -33,7 +33,7 @@ function onLogin(){
 			var $chat_item = $reddot.closest('.chat_item')
 			onReddot($chat_item)
 		}
-	}, 500)
+	}, 200)
 }
 
 function onReddot($chat_item){
@@ -52,6 +52,9 @@ function onReddot($chat_item){
 		'a.app',
 		'.js_message_plain'
 	].join(', ')).last()
+
+	// 系统消息暂时无法捕获
+	// 因为不产生红点 而目前我们依靠红点 可以改善
 	/*if ($msg.is('.message_system')) {
 		var ctn = $msg.find('.content').text()
 		if (ctn === '收到红包，请在手机上查看') {
@@ -62,6 +65,7 @@ function onReddot($chat_item){
 			// 无视
 		}
 	} else*/
+
 	if ($msg.is('.msg-img')) {
 		if ($msg.is('.custom_emoji')) { // 用户表情
 			reply.text = '发毛表情'
@@ -94,8 +98,16 @@ function onReddot($chat_item){
 	_console.log('回复', reply)
 
 	// 借用clipboard 实现输入文字 更新ng-model=EditAreaCtn
-	// 直接设#editArea的innerText无效 暂时找不到其他方法
+	// ~~直接设#editArea的innerText无效 暂时找不到其他方法~~
 	paste(reply)
+
+	// 发送text 可以直接更新scope中的变量 @昌爷 提点
+	// 但不知为毛 发不了表情
+	// if (reply.image) {
+	// 	paste(reply)
+	// } else {
+	// 	angular.element('#editArea').scope().editAreaCtn = reply.text
+	// }
 
 
 	// $('.web_wechat_face')[0].click()
@@ -112,7 +124,7 @@ function onReddot($chat_item){
 					$('img[src*=filehelper]').closest('.chat_item')[0].click()
 					free = true
 				}
-			}, 500)
+			}, 200)
 		}, 100)
 	} else {
 		$('.btn_send')[0].click()
