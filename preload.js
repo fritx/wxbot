@@ -15,6 +15,15 @@ var free = true
 // }, 3000)
 
 function init(){
+	var checkForQrcode = setInterval(function(){
+		var qrimg = document.querySelector('.qrcode img')
+		if (qrimg && qrimg.src.match(/\/qrcode/)) {
+			_console.log('--------------')
+			_console.log(qrimg.src)
+			_console.log('--------------')
+			clearInterval(checkForQrcode)
+		}
+	}, 100)
 	var checkForLogin = setInterval(function(){
 		var chat_item = document.querySelector('.chat_item')
 		if (chat_item) {
