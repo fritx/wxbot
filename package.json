@@ -9,6 +9,9 @@
     "bot"
   ],
   "dependencies": {
-    
+    "bytes": "^2.1.0",
+    "debug": "^2.2.0",
+    "fs-extra": "^0.24.0",
+    "lodash": "^3.10.1"
   }
 }

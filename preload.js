@@ -1,13 +1,24 @@
 // var ipc = require('ipc')
 var clipboard = require('clipboard')
 var NativeImage = require('native-image')
-
-// var reddots = []
+var _ = require('lodash')
+var debug = require('debug')('wxbot')
 
 // 应对 微信网页偷换了console 使起失效
 // 保住console引用 便于使用
 window._console = window.console
 
+// hack for atom/node setImmediate bug
+// https://github.com/atom/electron/issues/2916
+debug = _.wrap(debug, function(){
+	var args = _.toArray(arguments).slice(1)
+	var fn = arguments[0]
+	try {
+		return fn.apply(null, args)
+	} catch(err) {
+		_console.debug(args)
+	}
+})
 
 var free = true
 // setTimeout(function(){
@@ -18,9 +29,7 @@ function init(){
 	var checkForQrcode = setInterval(function(){
 		var qrimg = document.querySelector('.qrcode img')
 		if (qrimg && qrimg.src.match(/\/qrcode/)) {
-			_console.log('--------------')
-			_console.log(qrimg.src)
-			_console.log('--------------')
+			debug('二维码', qrimg.src)
 			clearInterval(checkForQrcode)
 		}
 	}, 100)
@@ -57,6 +66,7 @@ function onReddot($chat_item){
 	var $msg = $([
 		// '.message_system',
 		'.msg-img',
+		'.location',
 		'.voice',
 		'a.app',
 		'.js_message_plain'
@@ -68,6 +78,8 @@ function onReddot($chat_item){
 		var ctn = $msg.find('.content').text()
 		if (ctn === '收到红包，请在手机上查看') {
 			text = '发毛红包'
+		} else if (ctn === '位置共享已经结束') {
+			text = '位置共享已经结束'
 		} else if (ctn.match(/(.+)邀请(.+)加入了群聊/)) {
 			text = '加毛人'
 		} else {
@@ -82,7 +94,27 @@ function onReddot($chat_item){
 			// reply.text = '发毛图片'
 			reply.image = './fuck.jpeg'
 		}
+	} else if ($msg.is('.location')) {
+		//var src = $msg.find('.img').prop('src')
+		var desc = $msg.find('.desc').text()
+		debug('接收', 'location', desc)
+		reply.text = desc
 	} else if ($msg.is('.voice')) {
+		$msg[0].click()
+		var duration = parseInt($msg.find('.duration').text())
+		var src = $('#jp_audio_1').prop('src')
+		var msgid = src.match(/msgid=(\d+)/)[1]
+		var date = new Date().toJSON()
+			.replace(/\..+/, '')
+			.replace(/[\-:]/g, '')
+			.replace('T', '-')
+		// 20150927-164539_5656119287354277662.mp3
+		var filename = `${date}_${msgid}.mp3`
+		$('<a>').attr({
+			download: filename,
+			href: src
+		})[0].click() // 触发下载
+		debug('接收', 'voice', `${duration}s`, src)
 		reply.text = '发毛语音'
 	} else if ($msg.is('a.app')) {
 		reply.text = '转发jj'
@@ -101,10 +133,18 @@ function onReddot($chat_item){
 		})
 		if (text === '[收到了一个表情，请在手机上查看]') { // 微信表情包
 			text = '发毛表情'
+		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/)) {
+			text = '发毛位置共享'
 		}
 		reply.text = text
 	}
-	_console.log('回复', reply)
+	debug('回复', reply)
+
+	// if (!(reply.text && reply.text.match(/叼|屌|diao/i))) {
+	// 	$('img[src*=filehelper]').closest('.chat_item')[0].click()
+	// 	free = true
+	// 	return
+	// }
 
 	// 借用clipboard 实现输入文字 更新ng-model=EditAreaCtn
 	// ~~直接设#editArea的innerText无效 暂时找不到其他方法~~

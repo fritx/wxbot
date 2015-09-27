@@ -1,5 +1,25 @@
 var BrowserWindow = require('browser-window')
 var app = require('app')
+// var ipc = require('ipc')
+var _ = require('lodash')
+var fs = require('fs-extra')
+var bytes = require('bytes')
+var debug = require('debug')('wxbot')
+
+// hack for atom/node setImmediate bug
+// https://github.com/atom/electron/issues/2916
+debug = _.wrap(debug, function(){
+	var args = _.toArray(arguments).slice(1)
+	var fn = arguments[0]
+	try {
+		return fn.apply(null, args)
+	} catch(err) {
+		console.debug(args)
+	}
+})
+
+var downloadDir = `${__dirname}/download`
+fs.mkdirpSync(downloadDir)
 
 app.on('ready', function(){
 
@@ -15,6 +35,28 @@ app.on('ready', function(){
 		}
 	})
 	win.loadUrl('https://wx.qq.com')
+
+	// electron api DownloadItem
+	// https://github.com/atom/electron/blob/master/docs/api/download-item.md
+	win.webContents.session.on('will-download', function(e, item){
+		//e.preventDefault()
+		var url = item.url
+		var mime = item.mimeType
+		var filename = item.filename
+		var total = item.getTotalBytes()
+		debug('开始下载', filename, mime, bytes(total), url)
+		item.setSavePath(`${downloadDir}/${filename}`)
+		item.on('updated', function() {
+	    // debug('下载中', filename, item.getReceivedBytes())
+	  })
+		item.on('done', function(e, state){
+			if (state == 'completed') {
+				debug('下载完成', filename)
+			} else {
+				debug('下载失败', filename)
+			}
+		})
+	})
 
 })
 
