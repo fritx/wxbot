@@ -67,6 +67,8 @@ function onReddot($chat_item){
 		// '.message_system',
 		'.msg-img',
 		'.location',
+		'.attach',
+		'.microvideo',
 		'.voice',
 		'.card',
 		'a.app',
@@ -100,6 +102,17 @@ function onReddot($chat_item){
 		var desc = $msg.find('.desc').text()
 		debug('接收', 'location', desc)
 		reply.text = desc
+	} else if ($msg.is('.attach')) {
+		var title = $msg.find('.title').text()
+		var size = $msg.find('span:first').text()
+		var $download = $msg.find('a[download]') // 可触发下载
+		debug('接收', 'attach', title, size)
+		reply.text = title + '\n' + size
+	} else if ($msg.is('.microvideo')) {
+		var poster = $msg.find('img').prop('src') // 限制
+		var src = $msg.find('video').prop('src') // 限制
+		debug('接收', 'microvideo', src)
+		reply.text = '发毛小视频'
 	} else if ($msg.is('.voice')) {
 		$msg[0].click()
 		var duration = parseInt($msg.find('.duration').text())
@@ -147,6 +160,8 @@ function onReddot($chat_item){
 		})
 		if (text === '[收到了一个表情，请在手机上查看]') { // 微信表情包
 			text = '发毛表情'
+		} else if (text === '该类型暂不支持，请在手机上查看') {
+			text = ''
 		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/)) {
 			text = '发毛位置共享'
 		} else {
