@@ -13,7 +13,8 @@
 ```plain
 $ cd wxbot
 $ npm install
-$ electron .  # 运行 需扫二维码登录
+$ DEBUG＝* electron .  # 运行 需扫二维码登录
+$ set DEBUG=* && electron .  # 或在windows
 ```
 
 <img width="643" src="https://raw.githubusercontent.com/fritx/wxbot/dev/screenshot.jpeg">
@@ -25,7 +26,8 @@ $ electron .  # 运行 需扫二维码登录
 - [x] 识别并回复图片/语音/链接分享
 - [x] 发送图片
 - [x] 识别位置消息
-- [ ] 读取链接分享内容
+- [x] 识别名片消息
+- [x] 读取链接分享内容
 - [x] 读取语音文件
 - [ ] 读取用户表情/图片文件
 - [ ] 感应系统消息 时间/邀请加群/红包等

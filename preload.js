@@ -11,7 +11,7 @@ window._console = window.console
 // hack for atom/node setImmediate bug
 // https://github.com/atom/electron/issues/2916
 debug = _.wrap(debug, function(){
-	var args = _.toArray(arguments).slice(1)
+	var args = JSON.stringify(_.toArray(arguments).slice(1))
 	var fn = arguments[0]
 	try {
 		return fn.apply(null, args)
@@ -68,6 +68,7 @@ function onReddot($chat_item){
 		'.msg-img',
 		'.location',
 		'.voice',
+		'.card',
 		'a.app',
 		'.js_message_plain'
 	].join(', ')).last()
@@ -102,7 +103,7 @@ function onReddot($chat_item){
 	} else if ($msg.is('.voice')) {
 		$msg[0].click()
 		var duration = parseInt($msg.find('.duration').text())
-		var src = $('#jp_audio_1').prop('src')
+		var src = $('#jp_audio_1').prop('src') // 认证限制
 		var msgid = src.match(/msgid=(\d+)/)[1]
 		var date = new Date().toJSON()
 			.replace(/\..+/, '')
@@ -116,10 +117,23 @@ function onReddot($chat_item){
 		})[0].click() // 触发下载
 		debug('接收', 'voice', `${duration}s`, src)
 		reply.text = '发毛语音'
+	} else if ($msg.is('.card')) {
+		var name = $msg.find('.display_name').text()
+		var wxid = $msg.find('.signature').text()
+		var img = $msg.find('.img').prop('src') // 认证限制
+		debug('接收', 'card', name, wxid)
+		reply.text = name + '\n' + wxid
 	} else if ($msg.is('a.app')) {
-		reply.text = '转发jj'
-	} else {
+		var url = $msg.attr('href')
+		url = decodeURIComponent(url.match(/requrl=(.+?)&/)[1])
+		var title = $msg.find('.title').text()
+		var desc = $msg.find('.desc').text()
+		var img = $msg.find('.cover').prop('src') // 认证限制
+		debug('接收', 'link', title, desc, url)
+		reply.text = title + '\n' + url
+	}else {
 		var text = ''
+		var normal = false
 		$msg.contents().each(function(i, node){
 			if (node.nodeType === Node.TEXT_NODE) {
 				text += node.nodeValue
@@ -135,16 +149,13 @@ function onReddot($chat_item){
 			text = '发毛表情'
 		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/)) {
 			text = '发毛位置共享'
+		} else {
+			normal = true
 		}
+		// if (normal && !text.match(/叼|屌|diao/i)) text = ''
 		reply.text = text
 	}
 	debug('回复', reply)
-
-	// if (!(reply.text && reply.text.match(/叼|屌|diao/i))) {
-	// 	$('img[src*=filehelper]').closest('.chat_item')[0].click()
-	// 	free = true
-	// 	return
-	// }
 
 	// 借用clipboard 实现输入文字 更新ng-model=EditAreaCtn
 	// ~~直接设#editArea的innerText无效 暂时找不到其他方法~~
@@ -192,6 +203,7 @@ function paste(opt){
 	var oldImage = clipboard.readImage()
 	var oldHtml = clipboard.readHtml()
 	var oldText = clipboard.readText()
+	clipboard.clear() // 必须清空
 	if (opt.image) {
 		clipboard.writeImage(NativeImage.createFromPath(opt.image))
 	}

@@ -9,12 +9,12 @@ var debug = require('debug')('wxbot')
 // hack for atom/node setImmediate bug
 // https://github.com/atom/electron/issues/2916
 debug = _.wrap(debug, function(){
-	var args = _.toArray(arguments).slice(1)
+	var args = JSON.stringify(_.toArray(arguments).slice(1))
 	var fn = arguments[0]
 	try {
 		return fn.apply(null, args)
 	} catch(err) {
-		console.debug(args)
+		console.log(args)
 	}
 })
 
