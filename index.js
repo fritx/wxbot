@@ -4,19 +4,12 @@ var app = require('app')
 var _ = require('lodash')
 var fs = require('fs-extra')
 var bytes = require('bytes')
-var debug = require('debug')('wxbot')
 
-// hack for atom/node setImmediate bug
-// https://github.com/atom/electron/issues/2916
-debug = _.wrap(debug, function(){
-	var args = JSON.stringify(_.toArray(arguments).slice(1))
-	var fn = arguments[0]
-	try {
-		return fn.apply(null, args)
-	} catch(err) {
-		console.log(args)
-	}
-})
+function debug(/*args*/){
+	var args = JSON.stringify(_.toArray(arguments))
+	console.log(args)
+}
+
 
 var downloadDir = `${__dirname}/download`
 fs.mkdirpSync(downloadDir)
@@ -34,7 +27,7 @@ app.on('ready', function(){
 			preload: __dirname + '/preload.js'
 		}
 	})
-	win.loadUrl('https://wx.qq.com')
+	win.loadUrl('https://wx.qq.com/?lang=zh_CN&t=' + Date.now())
 
 	// electron api DownloadItem
 	// https://github.com/atom/electron/blob/master/docs/api/download-item.md

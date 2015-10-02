@@ -2,23 +2,16 @@
 var clipboard = require('clipboard')
 var NativeImage = require('native-image')
 var _ = require('lodash')
-var debug = require('debug')('wxbot')
 
 // 应对 微信网页偷换了console 使起失效
 // 保住console引用 便于使用
 window._console = window.console
 
-// hack for atom/node setImmediate bug
-// https://github.com/atom/electron/issues/2916
-debug = _.wrap(debug, function(){
-	var args = JSON.stringify(_.toArray(arguments).slice(1))
-	var fn = arguments[0]
-	try {
-		return fn.apply(null, args)
-	} catch(err) {
-		_console.debug(args)
-	}
-})
+function debug(/*args*/){
+	var args = JSON.stringify(_.toArray(arguments))
+	_console.log(args)
+}
+
 
 var free = true
 // setTimeout(function(){
@@ -46,12 +39,16 @@ function onLogin(){
 	// ipc.sendToHost('login')
 	$('img[src*=filehelper]').closest('.chat_item')[0].click()
 	var checkForReddot = setInterval(function(){
+		// window.isFocus = true
 		var $reddot = $('.web_wechat_reddot, .web_wechat_reddot_middle').last()
 		if ($reddot.length) {
 			var $chat_item = $reddot.closest('.chat_item')
-			setTimeout(function(){
+			try {
 				onReddot($chat_item)
-			}, 100)
+			} catch (err) { // 错误解锁
+				$('img[src*=filehelper]').closest('.chat_item')[0].click()
+				free = true
+			}
 		}
 	}, 100)
 }
@@ -66,22 +63,15 @@ function onReddot($chat_item){
 
 	// 自动回复 相同的内容
 	var $msg = $([
-		// '.message_system',
-		'.emoticon',
-		'.picture',
-		'.location',
-		'.attach',
-		'.microvideo',
-		'.video',
-		'.voice',
-		'.card',
-		'a.app',
-		'.js_message_plain'
+		'.message:not(.me) .bubble_cont > div',
+		'.message:not(.me) .bubble_cont > a.app',
+		'.message:not(.me) .emoticon',
+		'.message_system'
 	].join(', ')).last()
 
 	// 系统消息暂时无法捕获
 	// 因为不产生红点 而目前我们依靠红点 可以改善
-	/*if ($msg.is('.message_system')) {
+	if ($msg.is('.message_system')) {
 		var ctn = $msg.find('.content').text()
 		if (ctn === '收到红包，请在手机上查看') {
 			text = '发毛红包'
@@ -91,10 +81,12 @@ function onReddot($chat_item){
 			text = '实时对讲已经结束'
 		} else if (ctn.match(/(.+)邀请(.+)加入了群聊/)) {
 			text = '加毛人'
+		} else if (ctn.match(/(.+)撤回了一条消息/)) {
+			text = '撤你妹'
 		} else {
 			// 无视
 		}
-	} else*/
+	} else
 
 	if ($msg.is('.emoticon')) { // 自定义表情
 		var src = $msg.find('.msg-img').prop('src')
@@ -156,10 +148,11 @@ function onReddot($chat_item){
 		var img = $msg.find('.cover').prop('src') // 认证限制
 		debug('接收', 'link', title, desc, url)
 		reply.text = title + '\n' + url
-	}else {
+	} else if ($msg.is('.plain')) {
 		var text = ''
 		var normal = false
-		$msg.contents().each(function(i, node){
+		var $text = $msg.find('.js_message_plain')
+		$text.contents().each(function(i, node){
 			if (node.nodeType === Node.TEXT_NODE) {
 				text += node.nodeValue
 			} else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -170,23 +163,27 @@ function onReddot($chat_item){
 				}
 			}
 		})
-		if (text === '[收到了一个表情，请在手机上查看]') { // 微信表情包
+		if (text === '[收到了一个表情，请在手机上查看]' ||
+				text === '[Received a sticker. View on phone]') { // 微信表情包
 			text = '发毛表情'
-		} else if (text === '[收到一条微信转账消息，请在手机上查看]') {
+		} else if (text === '[收到一条微信转账消息，请在手机上查看]' ||
+				text === '[Received transfer. View on phone.]') {
 			text = '转毛帐'
-		}  else if (text === '[收到一条视频/语音聊天消息，请在手机上查看]') {
+		} else if (text === '[收到一条视频/语音聊天消息，请在手机上查看]' ||
+				text === '[Received video/voice chat message. View on phone.]') {
 			text = '聊jj'
 		} else if (text === '我发起了实时对讲') {
 			text = '对讲你妹'
 		} else if (text === '该类型暂不支持，请在手机上查看') {
 			text = ''
-		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/)) {
+		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/) ||
+				text.match(/(.+)started a real\-time location session\. View on phone/)) {
 			text = '发毛位置共享'
 		} else {
 			normal = true
 		}
-		// if (normal && !text.match(/叼|屌|diao/i)) text = ''
 		debug('接收', 'text', text)
+		// if (normal && !text.match(/叼|屌|diao|丢你|碉堡/i)) text = ''
 		reply.text = text
 	}
 	debug('回复', reply)
@@ -239,7 +236,13 @@ function paste(opt){
 	var oldText = clipboard.readText()
 	clipboard.clear() // 必须清空
 	if (opt.image) {
-		clipboard.writeImage(NativeImage.createFromPath(opt.image))
+		// 不知为啥 linux上 clipboard+nativeimage无效
+		try {
+			clipboard.writeImage(NativeImage.createFromPath(opt.image))
+		} catch (err) {
+			opt.image = null
+			opt.text = '妈蛋 发不出图片'
+		}
 	}
 	if (opt.html) clipboard.writeHtml(opt.html)
 	if (opt.text) clipboard.writeText(opt.text)

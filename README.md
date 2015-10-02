@@ -13,8 +13,7 @@
 ```plain
 $ cd wxbot
 $ npm install
-$ DEBUG＝* electron .  # 运行 需扫二维码登录
-$ set DEBUG=* && electron .  # 或在windows
+$ electron .  # 运行 需扫二维码登录
 ```
 
 <img width="643" src="https://raw.githubusercontent.com/fritx/wxbot/dev/screenshot.jpeg">
