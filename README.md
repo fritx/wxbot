@@ -13,7 +13,7 @@
 ```plain
 $ cd wxbot
 $ npm install
-$ electron .  # 运行 需扫二维码登录
+$ electron . --enable-logging  # 运行 需扫二维码登录
 ```
 
 <img width="643" src="https://raw.githubusercontent.com/fritx/wxbot/dev/screenshot.jpeg">
@@ -29,9 +29,13 @@ $ electron .  # 运行 需扫二维码登录
 - [x] 下载自定义表情/名片/图片/语音/附件
 - [ ] 下载视频/小视频
 - [ ] 感应系统消息 时间/邀请加群/红包等
-- [x] 探索运行于无界面平台 [electron#228](https://github.com/atom/electron/issues/228)
+- [x] 探索运行于无界面平台 [atom/electron#228](https://github.com/atom/electron/issues/228)
 
 ## 无界面linux运行
 
 - 从命令行输出 获取二维码图片url 自行打开/扫描
 - 参照配置 [segmentio/nightmare#224 (comment)](https://github.com/segmentio/nightmare/issues/224#issuecomment-141575361)
+
+## 如何正确地下载electron
+
+参考 <http://blog.fritx.me/?weekly/150904>

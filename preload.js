@@ -46,8 +46,7 @@ function onLogin(){
 			try {
 				onReddot($chat_item)
 			} catch (err) { // 错误解锁
-				$('img[src*=filehelper]').closest('.chat_item')[0].click()
-				free = true
+				reset()
 			}
 		}
 	}, 100)
@@ -68,6 +67,18 @@ function onReddot($chat_item){
 		'.message:not(.me) .emoticon',
 		'.message_system'
 	].join(', ')).last()
+	var $message = $msg.closest('.message')
+	var $nickname = $message.find('.nickname')
+	var $titlename = $('.title_name')
+
+	if ($nickname.length) { // 群聊
+		var from = $nickname.text()
+		var room = $titlename.text()
+	} else { // 单聊
+		var from = $titlename.text()
+		var room = null
+	}
+	debug('来自', from, room) // 这里的nickname会被remark覆盖
 
 	// 系统消息暂时无法捕获
 	// 因为不产生红点 而目前我们依靠红点 可以改善
@@ -212,16 +223,13 @@ function onReddot($chat_item){
 					$('.dialog_ft .btn_primary')[0].click()
 				} else {
 					clearInterval(tryClickBtn)
-					$('img[src*=filehelper]').closest('.chat_item')[0].click()
-					free = true
+					reset()
 				}
 			}, 200)
 		}, 100)
 	} else {
 		$('.btn_send')[0].click()
-		// $('.chat_item').last()[0].click()
-		$('img[src*=filehelper]').closest('.chat_item')[0].click()
-		free = true
+		reset()
 	}
 
 	
@@ -229,6 +237,14 @@ function onReddot($chat_item){
 	}, 100)
 }
 
+
+function reset(){
+	// 适当清理历史 缓解dom数量
+	var msgs = $('#chatArea').scope().chatContent
+	if (msgs.length >= 30) msgs.splice(0, 20)
+	$('img[src*=filehelper]').closest('.chat_item')[0].click()
+	free = true
+}
 
 function paste(opt){
 	var oldImage = clipboard.readImage()
