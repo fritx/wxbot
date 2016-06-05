@@ -12,6 +12,12 @@ function debug(/*args*/){
 	_console.log(args)
 }
 
+// 禁止外层网页滚动 影响使用
+document.addEventListener('DOMContentLoaded', () => {
+	// document.body.style.height = '100%'
+	document.body.style.overflow = 'hidden'
+})
+
 
 var free = true
 // setTimeout(function(){
@@ -232,8 +238,8 @@ function onReddot($chat_item){
 		reset()
 	}
 
-	
-	
+
+
 	}, 100)
 }
 
