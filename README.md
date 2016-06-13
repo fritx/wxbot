@@ -1,5 +1,7 @@
 # wxbot 微信机器人
 
+<a href="https://github.com/fritx/awesome-wechat"><img width="110" height="20" src="https://img.shields.io/badge/awesome-wechat-brightgreen.svg"></a>&nbsp;&nbsp;<a href="https://github.com/fritx/wxbot"><img width="74" height="20" src="https://img.shields.io/badge/github-dev-orange.svg"></a>
+
 - __普通个人号 微信机器人/外挂__ (不同于[webot](https://github.com/node-webot/webot)等公众号机器人)
 - 意义: 个人号可充当公众号使用 关系增强/门槛降低/更多行为/依旧自动化
 - 与[qqbot](https://github.com/xhan/qqbot)/[wqq](https://github.com/fritx/wqq)等不同: 基于浏览器/用户行为自动化 更贴近用户/更可靠
