@@ -1,6 +1,6 @@
 // var ipc = require('ipc')
-var clipboard = require('clipboard')
-var NativeImage = require('native-image')
+var clipboard = require('electron').clipboard
+var nativeImage = require('electron').nativeImage
 var _ = require('lodash')
 
 // 应对 微信网页偷换了console 使起失效
@@ -260,7 +260,7 @@ function paste(opt){
 	if (opt.image) {
 		// 不知为啥 linux上 clipboard+nativeimage无效
 		try {
-			clipboard.writeImage(NativeImage.createFromPath(opt.image))
+			clipboard.writeImage(nativeImage.createFromPath(opt.image))
 		} catch (err) {
 			opt.image = null
 			opt.text = '妈蛋 发不出图片'

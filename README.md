@@ -10,7 +10,8 @@
 - 目前处于高度开发和观察阶段
 - 目前代码提供自动回复 可自行定制
 
-请使用较新版本的electron>=v0.33.2 因为下载语音需要DownloadItem
+请使用较新版本的electron>=v1.0
+如果electron=v0.x 可以查看分支[wxbot#electron-v0](https://github.com/fritx/wxbot/tree/electron-v0)
 
 ```plain
 $ cd wxbot
