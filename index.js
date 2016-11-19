@@ -14,12 +14,35 @@ function debug(/*args*/){
 var downloadDir = `${__dirname}/download`
 fs.mkdirpSync(downloadDir)
 
+var win
+
+// 解决奇葩问题: 一旦登录进去 app.quit无法关闭窗口及退出应用
+// 命令行Ctrl+C也无法退出
+// 只能通过kill进程 彻底退出
+// win.destroy则可以成功关闭窗口
+function quitApp () {
+	if (win) {
+		win.destroy()
+	} else {
+		app.quit()
+	}
+}
+
+// 因为本应用有一个主窗口 默认隐藏不关闭
+// 所以可以将 窗口全部关闭 视为退出应用 方便管理
+app.on('window-all-closed', () => {
+	app.quit()
+})
+app.on('activate', () => {
+	if (win) win.show()
+})
+
 app.on('ready', function(){
 
 	// var win = new BrowserWindow({})
 	// win.loadURL('file://' + __dirname + '/index.html')
 
-	var win = new BrowserWindow({
+	win = new BrowserWindow({
 		width: 900,
 		height: 610,
 		webPreferences: {
@@ -27,6 +50,15 @@ app.on('ready', function(){
 			preload: __dirname + '/preload.js'
 		}
 	})
+
+	// Ctrl+C只会发送win.close 并且如果已登录  窗口还关不掉
+	// 所以干脆改为窗口关闭 直接退出
+	// https://github.com/electron/electron/issues/5273
+	win.on('close', e => {
+		e.preventDefault()
+		quitApp()
+	})
+
 	win.loadURL('https://wx.qq.com/?lang=zh_CN&t=' + Date.now())
 
 	// electron api DownloadItem
