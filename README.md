@@ -16,7 +16,7 @@
 ```plain
 $ cd wxbot
 $ npm install
-$ electron . --enable-logging  # 运行 需扫二维码登录
+$ electron .  # 运行 需扫二维码登录
 ```
 
 <img width="643" src="https://raw.githubusercontent.com/fritx/wxbot/dev/screenshot.jpeg">

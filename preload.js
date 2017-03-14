@@ -167,40 +167,41 @@ function onReddot($chat_item){
 		reply.text = title + '\n' + url
 	} else if ($msg.is('.plain')) {
 		var text = ''
+		var ctn = ''
 		var normal = false
 		var $text = $msg.find('.js_message_plain')
 		$text.contents().each(function(i, node){
 			if (node.nodeType === Node.TEXT_NODE) {
-				text += node.nodeValue
+				ctn += node.nodeValue
 			} else if (node.nodeType === Node.ELEMENT_NODE) {
 				var $el = $(node)
-				if ($el.is('br')) text += '\n'
+				if ($el.is('br')) ctn += '\n'
 				else if ($el.is('.qqemoji, .emoji')) {
-					text += $el.attr('text').replace(/_web$/, '')
+					ctn += $el.attr('text').replace(/_web$/, '')
 				}
 			}
 		})
-		if (text === '[收到了一个表情，请在手机上查看]' ||
-				text === '[Received a sticker. View on phone]') { // 微信表情包
+		if (ctn === '[收到了一个表情，请在手机上查看]' ||
+				ctn === '[Received a sticker. View on phone]') { // 微信表情包
 			text = '发毛表情'
-		} else if (text === '[收到一条微信转账消息，请在手机上查看]' ||
-				text === '[Received transfer. View on phone.]') {
+		} else if (ctn === '[收到一条微信转账消息，请在手机上查看]' ||
+				ctn === '[Received transfer. View on phone.]') {
 			text = '转毛帐'
-		} else if (text === '[收到一条视频/语音聊天消息，请在手机上查看]' ||
-				text === '[Received video/voice chat message. View on phone.]') {
+		} else if (ctn === '[收到一条视频/语音聊天消息，请在手机上查看]' ||
+				ctn === '[Received video/voice chat message. View on phone.]') {
 			text = '聊jj'
-		} else if (text === '我发起了实时对讲') {
+		} else if (ctn === '我发起了实时对讲') {
 			text = '对讲你妹'
-		} else if (text === '该类型暂不支持，请在手机上查看') {
-			text = ''
-		} else if (text.match(/(.+)发起了位置共享，请在手机上查看/) ||
-				text.match(/(.+)started a real\-time location session\. View on phone/)) {
+		} else if (ctn === '该类型暂不支持，请在手机上查看') {
+			text = '不懂'
+		} else if (ctn.match(/(.+)发起了位置共享，请在手机上查看/) ||
+				ctn.match(/(.+)started a real\-time location session\. View on phone/)) {
 			text = '发毛位置共享'
 		} else {
 			normal = true
+			text = ctn
 		}
-		debug('接收', 'text', text)
-		// if (normal && !text.match(/叼|屌|diao|丢你|碉堡/i)) text = ''
+		debug('接收', 'text', ctn)
 		reply.text = text
 	}
 	debug('回复', reply)
