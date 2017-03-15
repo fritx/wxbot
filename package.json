@@ -1,6 +1,6 @@
 {
   "name": "wxbot",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "普通个人号 微信机器人/外挂",
   "repository": "git@github.com:fritx/wxbot.git",
   "homepage": "https://github.com/fritx/wxbot",
@@ -10,12 +10,12 @@
     "qq",
     "bot"
   ],
+  "main": "src",
   "scripts": {
-    "start": "electron ."
+    "start": "node ."
   },
   "dependencies": {
-    "bytes": "^2.1.0",
-    "fs-extra": "^0.24.0",
-    "lodash": "^3.10.1"
+    "electron": "^1.6.2",
+    "mime": "^1.3.4"
   }
 }
