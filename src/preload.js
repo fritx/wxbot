@@ -1,6 +1,6 @@
 require('./preloadIpc')
 let { clipboard, nativeImage } = require('electron')
-let { s, sa, delay, dwnload } = require('./util')
+let { s, sa, delay, download } = require('./util')
 let parseMsg = require('./parseMsg')
 let replyMsg = require('./replyMsg')
 
@@ -114,7 +114,7 @@ function detectPage () {
       console.log(`目前处于${page}页面`)
 
       if (page === 'login') {
-        // download(qrcode)
+        download(qrcode)
       } else if (page === 'chat') {
         autoReply()
       }
@@ -161,6 +161,13 @@ function detectLogin () {
         return {
           page: 'login',
           qrcode: img.src
+        }
+      } else {
+        // 可能跳到缓存了退出登陆用户头像的界面，手动点一下切换用户，以触发二维码下载
+        let switchBtn = s('a.button.button_default')
+        if (switchBtn) {
+          switchBtn.click()
+          detectPage()
         }
       }
     }
