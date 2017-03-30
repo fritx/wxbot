@@ -39,6 +39,14 @@ $ node .  # 运行 需扫二维码登录
 - 从命令行输出 获取二维码图片url 自行打开/扫描
 - 参照配置 [segmentio/nightmare#224 (comment)](https://github.com/segmentio/nightmare/issues/224#issuecomment-141575361)
 
+## Docker 相关
+
+```plain
+$ cd wxbot
+$ docker build -t wxbot .
+$ docker run -d -p 8233:8233 # 浏览器访问 docker 的 8233 端口，即可获取图片
+```
+
 ## 如何正确地下载electron
 
 参考 <http://blog.fritx.me/?weekly/150904>
