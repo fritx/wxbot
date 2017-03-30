@@ -162,6 +162,13 @@ function detectLogin () {
           page: 'login',
           qrcode: img.src
         }
+      } else {
+        // 可能跳到缓存了退出登陆用户头像的界面，手动点一下切换用户，以触发二维码下载
+        let switchBtn = s('a.button.button_default')
+        if (switchBtn) {
+          switchBtn.click()
+          detectPage()
+        }
       }
     }
   })()
