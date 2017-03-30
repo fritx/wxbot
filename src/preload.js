@@ -1,6 +1,6 @@
 require('./preloadIpc')
 let { clipboard, nativeImage } = require('electron')
-let { s, sa, delay, dwnload } = require('./util')
+let { s, sa, delay, download } = require('./util')
 let parseMsg = require('./parseMsg')
 let replyMsg = require('./replyMsg')
 
@@ -114,7 +114,7 @@ function detectPage () {
       console.log(`目前处于${page}页面`)
 
       if (page === 'login') {
-        // download(qrcode)
+        download(qrcode)
       } else if (page === 'chat') {
         autoReply()
       }
