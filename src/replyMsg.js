@@ -44,7 +44,8 @@ let handlers = {
     return { text: desc }
   },
 
-  'attach' ({ title, size }) {
+  'attach' ({ src, title, size }) {
+    saveMedia(src)
     return {
       text: title + '\n' + size
     }
@@ -115,10 +116,12 @@ let handlers = {
   }
 }
 
+// fixme: attach文件附带content-deposition 覆盖download属性设置的filename
+// https://stackoverflow.com/questions/23872902/chrome-download-attribute-not-working
 function saveMedia (src, suffix) {
-  let msgid = src.match(/msgid=(\d+)/i)[1]
-  let date = new Date().toJSON()
-  let filename = `${date}_${msgid}`
+  let mat = src.match(/msgid=(\d+)/i)
+  let msgid = mat && mat[1]
+  let filename = msgid || ''
   if (suffix) filename += '_' + suffix
   download(src, filename)
 }

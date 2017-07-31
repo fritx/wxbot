@@ -74,10 +74,16 @@ app.on('ready', () => {
       let ext = mime.extension(mimeType)
 
       // 修复mime缺少映射关系: `audio/mp3` => `mp3`
-      if (mimeType === 'audio/mp3') {
-        ext = 'mp3'
-      }
-      filename += '.' + ext
+      if (mimeType === 'audio/mp3') ext = 'mp3'
+      if (ext === 'bin') ext = ''
+      if (ext) filename += '.' + ext
+      
+      let date = new Date().toJSON()
+      filename = date + '_' + filename
+
+      // 跨平台文件名容错
+      // http://blog.fritx.me/?weekly/160227
+      filename = filename.replace(/[\\\/:\*\,"\?<>|]/g, '_')
 
       let dest = join(downloadDir, filename)
       await saveItem(item, dest, `文件保存 ${filename}`)

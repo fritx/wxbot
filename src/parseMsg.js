@@ -126,11 +126,12 @@ function parseMsg ($msg) {
     var title = $msg.find('.title').text()
     var size = $msg.find('span:first').text()
     var $download = $msg.find('a[download]') // 可触发下载
+    var src = $download.prop('href')
     debug('接收', 'attach', title, size)
     // reply.text = title + '\n' + size
     Object.assign(msg, {
       type: 'attach',
-      title, size
+      title, size, src
     })
   } else if ($msg.is('.microvideo')) {
     var poster = $msg.find('img').prop('src') // 限制
