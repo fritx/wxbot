@@ -7,7 +7,7 @@ module.exports = parseMsg
 
 // msg = {
 //   from, room, style,
-//   type: 
+//   type:
 //     not supported|not recognized
 //     text|picture|app|card|location|attach
 //     sticker|emoticon|transfer
@@ -94,9 +94,7 @@ function parseMsg ($msg) {
         text: ctn
       })
     }
-  } else
-
-  if ($msg.is('.emoticon')) { // 用户自定义表情
+  } else if ($msg.is('.emoticon')) { // 用户自定义表情
     var src = $msg.find('.msg-img').prop('src')
     debug('接收', 'emoticon', src)
     // reply.text = '发毛表情'
@@ -162,7 +160,7 @@ function parseMsg ($msg) {
     })
   } else if ($msg.is('.card')) {
     var name = $msg.find('.display_name').text()
-    // var wxid = $msg.find('.signature').text() // 微信注释掉了
+    var wxid = $msg.find('.signature').text() // 微信注释掉了
     var img = $msg.find('.img').prop('src') // 认证限制
     debug('接收', 'card', name, wxid)
     // reply.text = name + '\n' + wxid
@@ -248,6 +246,11 @@ function parseMsg ($msg) {
     debug('接收', 'text', ctn)
     // if (normal && !text.match(/叼|屌|diao|丢你|碉堡/i)) text = ''
     // reply.text = text
+  } else {
+    console.log('未成功解析消息', $msg.html())
+    Object.assign(msg, {
+      type: 'not recognized'
+    })
   }
 
   return msg

@@ -19,16 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function autoReply () {
   while (true) { // 保持回复消息
-    let msg = await detectMsg()
-    console.log('解析得到msg', JSON.stringify(msg))
+    try {
+      let msg = await detectMsg()
+      console.log('解析得到msg', JSON.stringify(msg))
 
-    let reply = await replyMsg(msg)
-    console.log('reply', JSON.stringify(reply))
+      let reply = await replyMsg(msg)
+      console.log('reply', JSON.stringify(reply))
 
-    if (reply) {
-      // continue // test: 不作回复
-      pasteMsg(reply)
-      await clickSend(reply)
+      if (reply) {
+        // continue // test: 不作回复
+        pasteMsg(reply)
+        await clickSend(reply)
+      }
+    } catch (err) {
+      console.error('自动回复出现err', err)
     }
   }
 }
