@@ -38,26 +38,29 @@ async function autoReply () {
 }
 
 async function detectMsg () {
+  // 重置回"文件传输助手" 以能接收未读红点
   s('img[src*=filehelper]').closest('.chat_item').click()
+
+  let reddot
   while (true) {
     await delay(100)
-    let reddot = s('.web_wechat_reddot, .web_wechat_reddot_middle')
-    if (reddot) {
-      let item = reddot.closest('.chat_item')
-      item.click()
-
-      await delay(100)
-      let $msg = $([
-        '.message:not(.me) .bubble_cont > div',
-        '.message:not(.me) .bubble_cont > a.app',
-        '.message:not(.me) .emoticon',
-        '.message_system'
-      ].join(', ')).last()
-
-      let msg = parseMsg($msg)
-      return msg
-    }
+    reddot = s('.web_wechat_reddot, .web_wechat_reddot_middle')
+    if (reddot) break
   }
+
+  let item = reddot.closest('.chat_item')
+  item.click()
+
+  await delay(100)
+  let $msg = $([
+    '.message:not(.me) .bubble_cont > div',
+    '.message:not(.me) .bubble_cont > a.app',
+    '.message:not(.me) .emoticon',
+    '.message_system'
+  ].join(', ')).last()
+
+  let msg = parseMsg($msg)
+  return msg
 }
 
 async function clickSend (opt) {
@@ -69,9 +72,9 @@ async function clickSend (opt) {
       await delay(300)
       let btn = s('.dialog_ft .btn_primary')
       if (btn) {
-        s('.dialog_ft .btn_primary').click()
+        btn.click() // 持续点击
       } else {
-        break
+        return
       }
     }
   }
@@ -132,7 +135,7 @@ function detectChat () {
 
   let p = (async () => {
     while (true) {
-      if (toCancel) break
+      if (toCancel) return
       await delay(300)
 
       let item = s('.chat_item')
@@ -154,14 +157,13 @@ function detectLogin () {
 
   let p = (async () => {
     while (true) {
-      if (toCancel) break
+      if (toCancel) return
       await delay(300)
-
-      let img = s('.qrcode img')
 
       // 共有两次load事件 仅处理后一次
       // 第1次src https://res.wx.qq.com/a/wx_fed/webwx/res/static/img/2z6meE1.gif
       // 第2次src https://login.weixin.qq.com/qrcode/IbAG40QD6A==
+      let img = s('.qrcode img')
       if (img && img.src.endsWith('==')) {
         return {
           page: 'login',
