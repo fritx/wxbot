@@ -105,6 +105,7 @@ function pasteMsg (opt) {
 
 function detectPage () {
   let ps = [
+    detectCache(), // 协助跳转
     detectLogin(),
     detectChat()
   ]
@@ -166,14 +167,28 @@ function detectLogin () {
           page: 'login',
           qrcode: img.src
         }
-      } else {
-        // 可能跳到缓存了退出登陆用户头像的界面，手动点一下切换用户，以触发二维码下载
-        let switchBtn = s('a.button.button_default')
-        if (switchBtn) {
-          switchBtn.click()
-          detectPage()
-        }
       }
+    }
+  })()
+
+  p.cancel = () => {
+    toCancel = true
+  }
+  return p
+}
+
+// 需要定制promise 提供cancel方法
+// 可能跳到缓存了退出登陆用户头像的界面，手动点一下切换用户，以触发二维码下载
+function detectCache () {
+  let toCancel = false
+
+  let p = (async () => {
+    while (true) {
+      if (toCancel) return
+      await delay(300)
+
+      let btn = s('.association .button_default')
+      if (btn) btn.click() // 持续点击
     }
   })()
 
